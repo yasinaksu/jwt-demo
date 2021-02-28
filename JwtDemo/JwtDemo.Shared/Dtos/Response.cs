@@ -9,7 +9,6 @@ namespace JwtDemo.Shared.Dtos
     {
         public TData Data { get; private set; }
         public int StatusCode { get; private set; }
-
         [JsonIgnore]
         public bool IsSuccessful { get; private set; }
         public ErrorDto Error { get; set; }
