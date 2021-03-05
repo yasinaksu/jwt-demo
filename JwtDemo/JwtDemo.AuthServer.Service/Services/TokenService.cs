@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -29,6 +32,20 @@ namespace JwtDemo.AuthServer.Service.Services
             random.GetBytes(numberByte);
             var base64String = Convert.ToBase64String(numberByte);
             return base64String;
+        }
+
+        private IEnumerable<Claim> GetClaims(UserApp userApp,List<string> audiences)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier,userApp.Id),
+                new Claim(JwtRegisteredClaimNames.Email,userApp.Email),
+                new Claim(ClaimTypes.Name,userApp.UserName),
+                new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString())
+            };
+
+            claims.AddRange(audiences.Select(x => new Claim(JwtRegisteredClaimNames.Aud, x)));
+            return claims;
         }
 
         public TokenDto CreateToken(UserApp userApp)
