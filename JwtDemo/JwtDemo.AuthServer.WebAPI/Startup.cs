@@ -1,3 +1,4 @@
+using JwtDemo.AuthServer.Core.Configuration;
 using JwtDemo.Shared.Configurations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -27,7 +28,8 @@ namespace JwtDemo.AuthServer.WebAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<CustomTokenOption>(Configuration.GetSection("TokenOptions"));
+            services.Configure<CustomTokenOption>(Configuration.GetSection("TokenOption"));
+            services.Configure<Client>(Configuration.GetSection("Clients"));
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
