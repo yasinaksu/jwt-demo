@@ -34,7 +34,7 @@ namespace JwtDemo.AuthServer.Service.Services
             return base64String;
         }
 
-        private IEnumerable<Claim> GetClaims(UserApp userApp,List<string> audiences)
+        private IEnumerable<Claim> GetClaims(UserApp userApp, List<string> audiences)
         {
             var claims = new List<Claim>
             {
@@ -45,6 +45,18 @@ namespace JwtDemo.AuthServer.Service.Services
             };
 
             claims.AddRange(audiences.Select(x => new Claim(JwtRegisteredClaimNames.Aud, x)));
+            return claims;
+        }
+
+        private IEnumerable<Claim> GetClaimsByClient(Client client)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(JwtRegisteredClaimNames.Jti,Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Sub,client.Id.ToString())
+            };
+
+            claims.AddRange(client.Audiences.Select(audience => new Claim(JwtRegisteredClaimNames.Aud, audience)));
             return claims;
         }
 
