@@ -6,6 +6,7 @@ using JwtDemo.AuthServer.Core.Services;
 using JwtDemo.AuthServer.Core.UnitOfWork;
 using JwtDemo.Shared.Dtos;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -30,9 +31,42 @@ namespace JwtDemo.AuthServer.Service.Services
             _unitOfWork = unitOfWork;
             _userRefreshTokenRepository = userRefreshTokenRepository;
         }
-        public Task<Response<TokenDto>> CreateTokenAsync(LoginDto loginDto)
+        public async Task<Response<TokenDto>> CreateTokenAsync(LoginDto loginDto)
         {
-            throw new NotImplementedException();
+            if (loginDto==null)
+            {
+                throw new ArgumentNullException(nameof(loginDto));
+            }
+            var user = await _userManager.FindByEmailAsync(loginDto.Email);
+            if (user==null)
+            {
+                return Response<TokenDto>.Fail("Email veya password yanlış", 400, true);
+            }
+            var checkPasswordResult = await _userManager.CheckPasswordAsync(user, loginDto.Password);
+            if (!checkPasswordResult)
+            {
+                return Response<TokenDto>.Fail("Email veya password yanlış", 400, true);
+            }
+
+            var token = _tokenService.CreateToken(user);
+            var userRefreshToken = await _userRefreshTokenRepository.Where(x => x.UserId == user.Id).SingleOrDefaultAsync();
+            if (userRefreshToken == null)
+            {
+                await _userRefreshTokenRepository.AddAsync(new UserRefreshToken
+                {
+                    Code=token.RefreshToken,
+                    Expiration=token.RefreshTokenExpiration,
+                    UserId=user.Id
+                });
+            }
+            else
+            {
+                userRefreshToken.Code = token.RefreshToken;
+                userRefreshToken.Expiration = token.RefreshTokenExpiration;
+            }
+
+            await _unitOfWork.CommitAsync();
+            return Response<TokenDto>.Success(token, 200);
         }
 
         public Task<Response<ClientTokenDto>> CreateTokenByClient(ClientLoginDto clientLoginDto)
