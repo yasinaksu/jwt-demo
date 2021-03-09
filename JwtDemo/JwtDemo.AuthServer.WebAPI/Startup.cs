@@ -1,9 +1,18 @@
 using JwtDemo.AuthServer.Core.Configuration;
+using JwtDemo.AuthServer.Core.Models;
+using JwtDemo.AuthServer.Core.Repositories;
+using JwtDemo.AuthServer.Core.Services;
+using JwtDemo.AuthServer.Core.UnitOfWork;
+using JwtDemo.AuthServer.Data;
+using JwtDemo.AuthServer.Data.Repositories;
+using JwtDemo.AuthServer.Service.Services;
 using JwtDemo.Shared.Configurations;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -28,6 +37,28 @@ namespace JwtDemo.AuthServer.WebAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddScoped<IAuthenticationService, AuthenticationService>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            services.AddScoped(typeof(IGenericService<,>), typeof(GenericService<,>));
+
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            services.AddDbContext<AppDbContext>(options =>
+            {
+                options.UseSqlServer(Configuration.GetConnectionString("SqlServer"), sqlOptions =>
+                {
+                    sqlOptions.MigrationsAssembly("JwtDemo.AuthServer.Data");
+                });
+            });
+
+            services.AddIdentity<UserApp, IdentityRole>(options =>
+            {
+                options.User.RequireUniqueEmail = true;
+                options.Password.RequireNonAlphanumeric = false;
+            }).AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
+
             services.Configure<CustomTokenOption>(Configuration.GetSection("TokenOption"));
             services.Configure<List<Client>>(Configuration.GetSection("Clients"));
             services.AddControllers();
