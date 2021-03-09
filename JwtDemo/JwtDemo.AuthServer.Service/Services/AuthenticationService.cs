@@ -81,9 +81,27 @@ namespace JwtDemo.AuthServer.Service.Services
             return Response<ClientTokenDto>.Success(token, 200);
         }
 
-        public Task<Response<TokenDto>> CreateTokenByRefreshToken(string refreshToken)
+        public async Task<Response<TokenDto>> CreateTokenByRefreshToken(string refreshToken)
         {
-            throw new NotImplementedException();
+            var actualRefreshToken = await _userRefreshTokenRepository.Where(userRefreshToken => userRefreshToken.Code == refreshToken).SingleOrDefaultAsync();
+            if (actualRefreshToken==null)
+            {
+                return Response<TokenDto>.Fail("Refresh token not found", 404, true);
+            }
+
+            var user = await _userManager.FindByIdAsync(actualRefreshToken.UserId);
+            if (user == null)
+            {
+                return Response<TokenDto>.Fail("user not found", 404, true);
+            }
+
+            var tokenDto = _tokenService.CreateToken(user);
+            actualRefreshToken.Code = tokenDto.RefreshToken;
+            actualRefreshToken.Expiration = tokenDto.RefreshTokenExpiration;
+
+            await _unitOfWork.CommitAsync();
+            return Response<TokenDto>.Success(tokenDto, 200);
+
         }
 
         public Task<Response<NoDataDto>> RevokeRefreshToken(string refreshToken)
