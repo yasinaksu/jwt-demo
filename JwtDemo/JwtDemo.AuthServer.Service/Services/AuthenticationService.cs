@@ -104,9 +104,18 @@ namespace JwtDemo.AuthServer.Service.Services
 
         }
 
-        public Task<Response<NoDataDto>> RevokeRefreshToken(string refreshToken)
+        public async Task<Response<NoDataDto>> RevokeRefreshToken(string refreshToken)
         {
-            throw new NotImplementedException();
+            var actualRefreshToken = await _userRefreshTokenRepository.Where(userRefreshToken => userRefreshToken.Code == refreshToken).SingleOrDefaultAsync();
+
+            if (actualRefreshToken==null)
+            {
+                return Response<NoDataDto>.Fail("User refresh token not found", 404, true);
+            }
+
+            _userRefreshTokenRepository.Delete(actualRefreshToken);
+            await _unitOfWork.CommitAsync();
+            return Response<NoDataDto>.Success(200);
         }
     }
 }
