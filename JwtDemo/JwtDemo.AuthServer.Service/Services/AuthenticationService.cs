@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -69,9 +70,15 @@ namespace JwtDemo.AuthServer.Service.Services
             return Response<TokenDto>.Success(token, 200);
         }
 
-        public Task<Response<ClientTokenDto>> CreateTokenByClient(ClientLoginDto clientLoginDto)
+        public Response<ClientTokenDto> CreateTokenByClient(ClientLoginDto clientLoginDto)
         {
-            throw new NotImplementedException();
+            var client = _clients.SingleOrDefault(clientItem => clientItem.Id == clientLoginDto.ClientId && clientItem.Secret == clientLoginDto.ClientSecret);
+            if (client==null)
+            {
+                return Response<ClientTokenDto>.Fail("ClientId ve Secret not found", 404, true);
+            }
+            var token = _tokenService.CreateTokenByClient(client);
+            return Response<ClientTokenDto>.Success(token, 200);
         }
 
         public Task<Response<TokenDto>> CreateTokenByRefreshToken(string refreshToken)
