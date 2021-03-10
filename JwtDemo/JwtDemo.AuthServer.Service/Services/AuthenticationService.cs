@@ -81,7 +81,7 @@ namespace JwtDemo.AuthServer.Service.Services
             return Response<ClientTokenDto>.Success(token, 200);
         }
 
-        public async Task<Response<TokenDto>> CreateTokenByRefreshToken(string refreshToken)
+        public async Task<Response<TokenDto>> CreateTokenByRefreshTokenAsync(string refreshToken)
         {
             var actualRefreshToken = await _userRefreshTokenRepository.Where(userRefreshToken => userRefreshToken.Code == refreshToken).SingleOrDefaultAsync();
             if (actualRefreshToken==null)
@@ -104,7 +104,7 @@ namespace JwtDemo.AuthServer.Service.Services
 
         }
 
-        public async Task<Response<NoDataDto>> RevokeRefreshToken(string refreshToken)
+        public async Task<Response<NoDataDto>> RevokeRefreshTokenAsync(string refreshToken)
         {
             var actualRefreshToken = await _userRefreshTokenRepository.Where(userRefreshToken => userRefreshToken.Code == refreshToken).SingleOrDefaultAsync();
 
