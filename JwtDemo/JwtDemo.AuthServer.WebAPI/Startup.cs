@@ -7,6 +7,7 @@ using JwtDemo.AuthServer.Data;
 using JwtDemo.AuthServer.Data.Repositories;
 using JwtDemo.AuthServer.Service.Services;
 using JwtDemo.Shared.Configurations;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -61,6 +62,28 @@ namespace JwtDemo.AuthServer.WebAPI
 
             services.Configure<CustomTokenOption>(Configuration.GetSection("TokenOption"));
             services.Configure<List<Client>>(Configuration.GetSection("Clients"));
+
+
+            services.AddAuthentication(builder =>
+            {
+                builder.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                builder.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+            {
+                var customTokenOption = Configuration.GetSection("TokenOption").Get<CustomTokenOption>();
+                options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                {
+                    ValidIssuer = customTokenOption.Issuer,
+                    ValidAudience = customTokenOption.Audience[0],
+                    IssuerSigningKey = SignService.GetSymmetricSecurity(customTokenOption.SecurityKey),
+                    ValidateIssuerSigningKey = true,
+                    ValidateAudience = true,
+                    ValidateIssuer = true,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
+
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
