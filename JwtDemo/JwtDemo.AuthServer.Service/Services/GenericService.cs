@@ -48,7 +48,7 @@ namespace JwtDemo.AuthServer.Service.Services
             return Response<TDto>.Success(dto, 200);
         }
 
-        public async Task<Response<NoDataDto>> Remove(int id)
+        public async Task<Response<NoDataDto>> RemoveAsync(int id)
         {
             var deletedEntity = await _repository.GetByIdAsync(id);
             if (deletedEntity == null)
@@ -60,7 +60,7 @@ namespace JwtDemo.AuthServer.Service.Services
             return Response<NoDataDto>.Success(204);
         }
 
-        public async Task<Response<NoDataDto>> Update(TDto entity, int id)
+        public async Task<Response<NoDataDto>> UpdateAsync(TDto entity, int id)
         {
             var modifiedEntity = await _repository.GetByIdAsync(id);
             if (modifiedEntity == null)
