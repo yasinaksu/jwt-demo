@@ -1,3 +1,6 @@
+using JwtDemo.AuthServer.Service.Services;
+using JwtDemo.Shared.Configurations;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -26,7 +29,26 @@ namespace MiniApp2.WebAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
+            services.Configure<CustomTokenOption>(Configuration.GetSection("TokenOption"));
+            services.AddAuthentication(builder =>
+            {
+                builder.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                builder.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+            {
+                var customTokenOption = Configuration.GetSection("TokenOption").Get<CustomTokenOption>();
+                options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                {
+                    ValidIssuer = customTokenOption.Issuer,
+                    ValidAudience = customTokenOption.Audience[0],
+                    IssuerSigningKey = SignService.GetSymmetricSecurity(customTokenOption.SecurityKey),
+                    ValidateIssuerSigningKey = true,
+                    ValidateAudience = true,
+                    ValidateIssuer = true,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -47,7 +69,7 @@ namespace MiniApp2.WebAPI
             app.UseHttpsRedirection();
 
             app.UseRouting();
-
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
