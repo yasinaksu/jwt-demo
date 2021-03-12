@@ -43,7 +43,7 @@ namespace JwtDemo.AuthServer.WebAPI.Controllers
             return ActionResultInstance(response: result);
         }
 
-        [HttpDelete]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             var result = await _productService.RemoveAsync(id);
