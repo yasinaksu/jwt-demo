@@ -10,10 +10,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\JwtDemo.AuthServer.Service\JwtDemo.AuthServer.Service.csproj" />
     <ProjectReference Include="..\JwtDemo.Shared\JwtDemo.Shared.csproj" />
   </ItemGroup>
