@@ -18,8 +18,8 @@ namespace MiniApp1.WebAPI.Controllers
         public IActionResult GetStock()
         {
             var userName = User.Identity.Name;
-            var userId = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier);
-            return Ok($"Stock İşlemleri => UserName: {userName} - UserId = {userId}");
+            var userClaim = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier);
+            return Ok($"Stock İşlemleri => UserName: {userName} - UserId = {userClaim.Value}");
         }
     }
 }

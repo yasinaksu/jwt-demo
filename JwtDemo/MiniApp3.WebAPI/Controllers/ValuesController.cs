@@ -25,7 +25,7 @@ namespace MiniApp3.WebAPI.Controllers
             var index = random.Next(0, Summaries.Length);
             var userName = User.Identity.Name;
             var userId = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier);
-            return Ok($"Hava Durumu İşlemleri => Hava : {Summaries[index]} UserName: {userName} - UserId = {userId}");
+            return Ok($"Hava Durumu İşlemleri => Hava : {Summaries[index]}");
         }
     }
 }
