@@ -1,3 +1,4 @@
+using FluentValidation.AspNetCore;
 using JwtDemo.AuthServer.Core.Configuration;
 using JwtDemo.AuthServer.Core.Models;
 using JwtDemo.AuthServer.Core.Repositories;
@@ -84,7 +85,10 @@ namespace JwtDemo.AuthServer.WebAPI
                 };
             });
 
-            services.AddControllers();
+            services.AddControllers().AddFluentValidation(configuration =>
+            {
+                configuration.RegisterValidatorsFromAssemblyContaining<Startup>();
+            });
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "JwtDemo.AuthServer.WebAPI", Version = "v1" });
