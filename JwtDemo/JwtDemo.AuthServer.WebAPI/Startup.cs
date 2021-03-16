@@ -7,6 +7,7 @@ using JwtDemo.AuthServer.Core.UnitOfWork;
 using JwtDemo.AuthServer.Data;
 using JwtDemo.AuthServer.Data.Repositories;
 using JwtDemo.AuthServer.Service.Services;
+using JwtDemo.AuthServer.WebAPI.Extentions;
 using JwtDemo.Shared.Configurations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -85,10 +86,13 @@ namespace JwtDemo.AuthServer.WebAPI
                 };
             });
 
+            
+
             services.AddControllers().AddFluentValidation(configuration =>
             {
                 configuration.RegisterValidatorsFromAssemblyContaining<Startup>();
             });
+            services.AddCustomValidationResponse();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "JwtDemo.AuthServer.WebAPI", Version = "v1" });
