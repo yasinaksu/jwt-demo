@@ -108,6 +108,11 @@ namespace JwtDemo.AuthServer.WebAPI
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "JwtDemo.AuthServer.WebAPI v1"));
             }
+            else
+            {
+                app.UseCustomExceptionHandler();
+            }
+            app.UseCustomExceptionHandler();
 
             app.UseHttpsRedirection();
 

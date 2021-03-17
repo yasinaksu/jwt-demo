@@ -1,5 +1,6 @@
 ﻿using JwtDemo.AuthServer.Core.Dtos;
 using JwtDemo.AuthServer.Core.Services;
+using JwtDemo.Shared.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
